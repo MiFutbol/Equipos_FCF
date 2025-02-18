@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaflet Tutorial</title>
+
+    <!-- leaflet css  -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" /> 
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@v0.74.0/dist/L.Control.Locate.min.css" />      
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.74.4/dist/L.Control.Locate.min.css" />       
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">    
+
+    <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@v0.74.0/dist/L.Control.Locate.min.js" charset="utf-8"></script>  
+    <script src="https://npmcdn.com/leaflet@0.7.7/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+
+<script>
+    // Map initialization 
+    var map = L.map('map').setView([41.547849, 2.213761],10);
+    var current_position;
+    var posicion_inicio = ""
+
+    //osm layer
+    var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: 'MiFutbol. Ver 3.0'
+    });
+    osm.addTo(map);
+    
+    //Calculo de la ruta
+    function ruta() 
+    {
+      L.Routing.control({
+          waypoints:[
+            L.latLng(posicion_inicio),   //Origen
+            L.latLng(41.547849, 2.213761)    //Destino
+          ],
+          routeWhileDragging: true,
+          show: false
+      }).addTo(map); 
+    }
+
+    // wrap map.locate in a function    
+    function locate() 
+    {
+      map.locate({setView: true, maxZoom: 16});
+      
+      function onLocationFound(e) 
+       {
+         var radius = e.accuracy;
+         if (current_position) 
+          {
+             map.removeLayer(current_position);
+          }
+         current_position = L.marker(e.latlng).addTo(map);
+         if (posicion_inicio === "")
+           {
+              posicion_inicio = e.latlng;
+              ruta();
+           }  
+       }
+      map.on('locationfound', onLocationFound);
+    }
+
+    // call locate every 3 seconds... forever
+    setInterval(locate, 3000)    
+</script>
+</body>
+</html>
